@@ -18,7 +18,7 @@ import Subsystems.Lift;
 @TeleOp
 @Config
 
-public class TeleOp_2025 {
+public class TeleOp_2025  extends OpMode{
     DriveTrain train = new DriveTrain();
     Lift lift = new Lift();
     Arm arm = new Arm();
@@ -41,7 +41,7 @@ public class TeleOp_2025 {
         lift.init(hardwareMap);
         arm.init(hardwareMap);
     }
-    @Override
+    //@Override
     public void loop(){
         gamePadInput();
         train.getController(g1LeftStickX,g1RightStickX,g1LeftStickY, g1RightStickY);

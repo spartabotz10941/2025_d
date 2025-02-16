@@ -36,7 +36,7 @@ public class Subsystem_Test extends OpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        this.motor0 = hardwareMap.get(DcMotorEx.class,"elbowMotor");
+        this.motor0 = hardwareMap.get(DcMotorEx.class,"shoulderMotor");
         this.motor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //this.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
