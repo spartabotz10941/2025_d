@@ -60,7 +60,6 @@ public class mathTest extends OpMode {
      */
     @Override
     public void loop() {
-        Arm.controllerToPosition (gamepad2.left_stick_y, gamepad2.right_stick_y);
 
         dashboardTelemetry.addData("gamepad left", gamepad2.left_stick_y);
         dashboardTelemetry.addData("gamepad right", gamepad2.right_stick_y);

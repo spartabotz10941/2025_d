@@ -32,10 +32,10 @@ public class Arm {
 
     //shoulder PID
     private static PIDController shoulder_controller;
-    public static double shoulder_kP = 0.01;
-    public static double shoulder_kI = 0.028;
-    public static double shoulder_kD = 0;
-    public static double shoulder_hold = 0.29;
+    public static double shoulder_kP = 0.0055;
+    public static double shoulder_kI = 0.45;
+    public static double shoulder_kD = 0.003;
+    public static double shoulder_hold = 0.15;
     public static double shoulder_ticks_per_radians = 900;
 
     //elbow PID
@@ -76,24 +76,13 @@ public class Arm {
         this.shoulderMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         this.shoulder_controller = new PIDController (shoulder_kP, shoulder_kI, shoulder_kD);
 
-        this.elbowMotor = hwMap.get(DcMotorEx.class, "elbowMotor" );
-        this.elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.elbowMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.elbowMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.elbow_controller = new PIDController(elbow_kP, elbow_kI, elbow_kD);
-
         shoulderTouch = hwMap.get(TouchSensor.class,"shoulderReset" );
-        elbowTouch = hwMap.get(TouchSensor.class,"elbowReset" );
-
-
-
 
     }
 
     public void shoulderReset(){
         if (!shoulderTouch.isPressed() & !shoulderIsReset){
-            shoulderMotor.setPower(0.5);
+            shoulderMotor.setPower(0.2);
             dashboardTelemetry.addData("shoulder is reset", shoulderIsReset);
         }else if (shoulderTouch.isPressed()){
             try {
@@ -107,6 +96,41 @@ public class Arm {
         }
         dashboardTelemetry.update();
     }
+
+
+    public void mooveShoulder(boolean upp, boolean downn){
+       if (upp){
+           shoulderMotor.setPower(motor_power);
+        }
+       else if (downn) {
+           shoulderMotor.setPower(-motor_power);
+       }
+       else {
+           shoulderMotor.setPower(0.0);
+       }
+
+    }
+
+    public static void shoulder_calc (double shoulder_target){
+        double output = 0.0;
+        double shoulder_pos = shoulderMotor.getCurrentPosition();
+        if (Math.abs(shoulder_target-shoulder_pos) > 5) {
+            output = shoulder_controller.calculate(shoulder_pos, shoulder_target);
+            output = PID_TEst.limiter(output, 1.0);
+
+        }
+        //shoulderMotor.setPower(output + (shoulder_hold * Math.cos(shoulderAngle())));
+    }
+
+    public  double shoulderAngle(){
+        double shoulderAngle = (Math.PI / 2) + (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
+        //dashboardTelemetry.addData("shoulder position", shoulderMotor.getCurrentPosition());
+        //dashboardTelemetry.addData("shoulder angle", shoulderAngle);
+        return shoulderAngle;
+    }
+
+
+    /*
     public void elbowReset(){
         if (!elbowTouch.isPressed() & !elbowIsReset & shoulderIsReset){
             elbowMotor.setPower(0.5);
@@ -122,19 +146,6 @@ public class Arm {
             dashboardTelemetry.addData("elbow is reset", elbowIsReset);
         }
         dashboardTelemetry.update();
-    }
-
-    public void mooveShoulder(boolean upp, boolean downn){
-       if (upp){
-           shoulderMotor.setPower(motor_power);
-        }
-       else if (downn) {
-           shoulderMotor.setPower(-motor_power);
-       }
-       else {
-           shoulderMotor.setPower(0.0);
-       }
-
     }
 
     public void mooveArm (boolean up, boolean down){
@@ -159,16 +170,7 @@ public class Arm {
     }
 
     //pid controller output for shoulder motor
-    public static void shoulder_calc (double shoulder_target){
-        double output = 0.0;
-        double shoulder_pos = shoulderMotor.getCurrentPosition();
-        if (Math.abs(shoulder_target-shoulder_pos) > 5) {
-            output = shoulder_controller.calculate(shoulder_pos, shoulder_target);
-            output = PID_TEst.limiter(output, 1.0);
 
-        }
-        //shoulderMotor.setPower(output + (shoulder_hold * Math.cos(shoulderAngle())));
-    }
 
     public static void elbow_calc(double elbow_target){
         double output = 0.0;
@@ -188,12 +190,7 @@ public class Arm {
         return elbowAngle;
     }
 
-    public  double shoulderAngle(){
-        double shoulderAngle = (Math.PI / 2) + (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
-        //dashboardTelemetry.addData("shoulder position", shoulderMotor.getCurrentPosition());
-        //dashboardTelemetry.addData("shoulder angle", shoulderAngle);
-        return shoulderAngle;
-    }
+
 
     public static void controllerToPosition(double l, double r){
 
@@ -220,14 +217,14 @@ public class Arm {
     public static void armMath() {
 
         double p = Math.sqrt(Math.pow(desiredLength,2) + Math.pow(desiredHeight,2));
-        /*
+
         theta1 = Math.PI - Math.atan(desiredHeight / desiredLength) - Math.acos( ( Math.pow(arm2Trig, 2) - Math.pow(arm1Length,2) - Math.pow(q,2)) / (-2 * arm1Length * q) );
         theta2 = Math.acos( (Math.pow(q,2) - Math.pow(arm1Length, 2) - Math.pow(arm2Length, 2)) / (-2 * arm1Length * arm2Length));
 
 
         theta2 = Math.PI + Math.acos( (Math.pow(desiredLength, 2) + Math.pow(desiredHeight, 2) - Math.pow(arm1Length, 2) - Math.pow(arm2Trig, 2)) / (2 * arm1Length * arm2Trig) );
         theta1 = (Math.PI / 2) - Math.atan(desiredHeight / desiredLength) + Math.atan( (arm2Trig * Math.sin(theta2)) / (arm1Length + (arm2Trig * Math.cos(arm2Trig))));
-        */
+
 
         theta1 = (Math.PI / 2) - Math.atan(desiredHeight / desiredLength) - Math.acos( ( Math.pow(arm2Trig, 2) - Math.pow(arm1Length, 2) - Math.pow(p, 2)) / ( -2 * p * arm1Length) );
         theta2 = Math.acos( (Math.pow(p, 2) - Math.pow(arm1Length, 2) - Math.pow(arm2Trig, 2)) / (-2 * arm1Length * arm2Trig) );
@@ -242,6 +239,6 @@ public class Arm {
     public static void mathTest() {
         thetaTest = Math.acos((Math.pow(d, 2) - Math.pow(b, 2) - Math.pow(c, 2)) / (-2 * b * c));
     }
-
+    */
 
 }

@@ -8,6 +8,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -36,6 +37,7 @@ public class Lift {
         this.liftMotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.liftMotorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.liftMotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.liftMotorL.setDirection(DcMotorSimple.Direction.REVERSE);
 
     }
 

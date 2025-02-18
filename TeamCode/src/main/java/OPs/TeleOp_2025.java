@@ -49,7 +49,7 @@ public class TeleOp_2025  extends OpMode{
     @Override
     public void init_loop(){
         arm.shoulderReset();
-        arm.elbowReset();
+
     }
 
     @Override
@@ -58,13 +58,8 @@ public class TeleOp_2025  extends OpMode{
         train.getController(g1LeftStickX,g1RightStickX,g1LeftStickY, g1RightStickY);
         train.Drive();
         lift.Ascend(gamepad2.right_trigger, gamepad2.left_trigger);
-        //arm.mooveShoulder(gamepad2.right_bumper, gamepad2.left_bumper);
-        //arm.mooveArm(gamepad2.a, gamepad2.b);
-        //arm.shoulder_calc(shoulderTarget);
-        //arm.elbow_calc(elbowTarget);
 
         dashboardTelemetry.addData("shoulder andgle", arm.shoulderAngle());
-        dashboardTelemetry.addData("ebow andgle", arm.elbowAngle());
         dashboardTelemetry.update();
 
     }
