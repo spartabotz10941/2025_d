@@ -28,6 +28,10 @@ public class TeleOp_2025  extends OpMode{
     public double g1RightStickY = 0.0;
     public double g1RightStickX = 0.0;
 
+    public static double shoulderTarget = 0;
+
+    public static double elbowTarget = 0;
+
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
@@ -41,17 +45,26 @@ public class TeleOp_2025  extends OpMode{
         lift.init(hardwareMap);
         arm.init(hardwareMap);
     }
-    //@Override
+
+    @Override
+    public void init_loop(){
+        arm.shoulderReset();
+        arm.elbowReset();
+    }
+
+    @Override
     public void loop(){
         gamePadInput();
         train.getController(g1LeftStickX,g1RightStickX,g1LeftStickY, g1RightStickY);
         train.Drive();
         lift.Ascend(gamepad2.right_trigger, gamepad2.left_trigger);
-        arm.mooveShoulder(gamepad2.right_bumper, gamepad2.left_bumper);
-        arm.mooveArm(gamepad2.a, gamepad2.b);
+        //arm.mooveShoulder(gamepad2.right_bumper, gamepad2.left_bumper);
+        //arm.mooveArm(gamepad2.a, gamepad2.b);
+        //arm.shoulder_calc(shoulderTarget);
+        //arm.elbow_calc(elbowTarget);
 
-        dashboardTelemetry.addData("tight trigger", gamepad2.right_trigger);
-        dashboardTelemetry.addData("left trigger", gamepad2.left_trigger);
+        dashboardTelemetry.addData("shoulder andgle", arm.shoulderAngle());
+        dashboardTelemetry.addData("ebow andgle", arm.elbowAngle());
         dashboardTelemetry.update();
 
     }

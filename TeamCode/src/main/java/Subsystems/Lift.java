@@ -21,6 +21,7 @@ public class Lift {
     public static double lift_kP = 0;
     public static double lift_kI = 0;
     public static double lift_kD = 0;
+    public static double lift_kH = 0;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -43,9 +44,11 @@ public class Lift {
         direction = up - down;
         if (direction != 0.0) {
             liftMotorR.setPower(direction);
+            liftMotorL.setPower(direction);
         }
         else{
             liftMotorR.setPower(0.0);
+            liftMotorL.setPower(0.0);
         }
     }
 
@@ -55,8 +58,10 @@ public class Lift {
         if (Math.abs(shoulder_target-shoulder_pos) > 5) {
             output = lift_controller.calculate(shoulder_pos, shoulder_target);
             output = PID_TEst.limiter(output, 1.0);
-
         }
+
+        output = output + lift_kH;
+
         this.liftMotorR.setPower(output);
         this.liftMotorL.setPower(output);
     }

@@ -25,10 +25,12 @@ public class PID_TEst extends OpMode {
     private Servo servo0;
 
     public static double current_position;
-    public static double target_position = 500;
+    public static double target_position = 0;
     public static double kI = 0;
     public static double kP = 0;
     public static double kD = 0;
+    public static double kH = 0;
+    public static double ticksPerRadians = 0;
     public PIDController pid;
     public static double maxPower = .1;
 
@@ -46,13 +48,12 @@ public class PID_TEst extends OpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        this.motor0 = hardwareMap.get(DcMotorEx.class,"shoulderMotor");
+        this.motor0 = hardwareMap.get(DcMotorEx.class,"elbowMotor");
         this.motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.motor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.motor0.setDirection(DcMotorSimple.Direction.REVERSE);
         this.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        this.servo0 = hardwareMap.get(Servo.class, "fingerServo");
 
         pid = new PIDController(kP, kI, kD);
 
@@ -86,13 +87,15 @@ public class PID_TEst extends OpMode {
     @Override
     public void loop() {
 
+       double angle= (Math.PI / 2) + (motor0.getCurrentPosition()/ticksPerRadians);
+
         current_position = this.motor0.getCurrentPosition();
         pid.setPID(kP,kI,kD);
         double output = 0;
         if (Math.abs(target_position - current_position) > 10){
             output = this.pid.calculate(current_position, target_position);
             output = limiter(output, maxPower);
-            this.motor0.setPower(output);
+            this.motor0.setPower(output + (kH * Math.cos(angle)));
         }
 
 
