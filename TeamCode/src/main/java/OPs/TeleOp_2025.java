@@ -15,7 +15,7 @@ import Subsystems.Arm;
 import Subsystems.DriveTrain;
 import Subsystems.Lift;
 
-@TeleOp
+@TeleOp (name = "TeleOp 2025")
 @Config
 
 public class TeleOp_2025  extends OpMode{
@@ -27,10 +27,7 @@ public class TeleOp_2025  extends OpMode{
 
     public double g1RightStickY = 0.0;
     public double g1RightStickX = 0.0;
-
-    public static double shoulderTarget = 0;
-
-    public static double elbowTarget = 0;
+    private boolean reset_is_done = false;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -49,15 +46,21 @@ public class TeleOp_2025  extends OpMode{
     @Override
     public void init_loop(){
         arm.shoulderReset();
-
     }
 
     @Override
     public void loop(){
+        if (!reset_is_done){
+            arm.shoulderReset();
+            lift.liftReset();
+            if (gamepad2.left_stick_button) reset_is_done = false;
+        }
+
         gamePadInput();
         train.getController(g1LeftStickX,g1RightStickX,g1LeftStickY, g1RightStickY);
         train.Drive();
-        lift.Ascend(gamepad2.right_trigger, gamepad2.left_trigger);
+        lift.Ascend(- gamepad2.left_stick_y);
+        arm.moveShoulder(gamepad2.right_trigger, gamepad2.left_trigger);
 
         dashboardTelemetry.addData("shoulder andgle", arm.shoulderAngle());
         dashboardTelemetry.update();

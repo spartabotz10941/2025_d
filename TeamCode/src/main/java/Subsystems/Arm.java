@@ -21,12 +21,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Arm {
     //motors
     private static DcMotorEx shoulderMotor;
-    private static DcMotorEx elbowMotor;
+
     public static double motor_power = 0.2;
 
     // buttons
-    TouchSensor elbowTouch;
-    private boolean elbowIsReset = false;
     TouchSensor shoulderTouch;
     private boolean shoulderIsReset = false;
 
@@ -38,32 +36,24 @@ public class Arm {
     public static double shoulder_hold = 0.15;
     public static double shoulder_ticks_per_radians = 900;
 
-    //elbow PID
-    private static PIDController elbow_controller;
-    public static double elbow_kP = 0.003;
-    public static double elbow_kI = 0.05;
-    public static double elbow_kD = 0;
-    public static double elbow_hold = 0.11;
-    public static double elbow_ticks_per_radians = 1760;
+    private double shoulder_target;
+    public static double shoulder_max_position;
+    public static double shoulder_target_change;
+    public static double shoulder_start_angle;
+
 
     //arm movement
     public static final double arm1Length = 242; // length of arm1 in mm
     public static final double arm2Length = 320; // length of arm2 in mm
     public static final double clawLength = 167; // length of claw in mm
     public static double desiredHeight;
-    public static double heightSpeed = 0.25;
     public static double desiredLength;
-    public static double lengthSpeed = 0.25;
     public static double arm2Trig = Math.sqrt(Math.pow(arm2Length,2) + Math.pow(clawLength,2));
     public static double maxExtention = arm1Length + arm2Length - 170; // max Extension in mm
     public static double minExtention = 0; // min Extension in mm
     public static double theta1 = 0;
     public static double theta2 = 0;
 
-    public static double b;
-    public static double c;
-    public static double d;
-    public static double thetaTest;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -84,30 +74,31 @@ public class Arm {
         if (!shoulderTouch.isPressed() & !shoulderIsReset){
             shoulderMotor.setPower(0.2);
             dashboardTelemetry.addData("shoulder is reset", shoulderIsReset);
-        }else if (shoulderTouch.isPressed()){
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            if (shoulderTouch.isPressed()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                shoulderMotor.setPower(0);
+                shoulderIsReset = true;
+                dashboardTelemetry.addData("shoulder is reset", shoulderIsReset);
             }
-            shoulderMotor.setPower(0);
-            shoulderIsReset = !shoulderIsReset;
-            dashboardTelemetry.addData("shoulder is reset", shoulderIsReset);
         }
         dashboardTelemetry.update();
     }
 
 
-    public void mooveShoulder(boolean upp, boolean downn){
-       if (upp){
-           shoulderMotor.setPower(motor_power);
+    public void moveShoulder(double up, double down){
+        double direction = up - down;
+        this.shoulder_target = shoulder_target + direction * shoulder_target_change;
+        if (shoulder_target< 0){
+            shoulder_target = 0;
+        }else if (shoulder_target > shoulder_max_position){
+            shoulder_target = shoulder_max_position;
         }
-       else if (downn) {
-           shoulderMotor.setPower(-motor_power);
-       }
-       else {
-           shoulderMotor.setPower(0.0);
-       }
+
+        shoulder_calc(shoulder_target);
 
     }
 
@@ -119,13 +110,14 @@ public class Arm {
             output = PID_TEst.limiter(output, 1.0);
 
         }
-        //shoulderMotor.setPower(output + (shoulder_hold * Math.cos(shoulderAngle())));
+        double shoulderAngle = shoulder_start_angle + (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
+        shoulderMotor.setPower(output + (shoulder_hold * Math.cos(shoulderAngle)));
     }
 
-    public  double shoulderAngle(){
-        double shoulderAngle = (Math.PI / 2) + (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
-        //dashboardTelemetry.addData("shoulder position", shoulderMotor.getCurrentPosition());
-        //dashboardTelemetry.addData("shoulder angle", shoulderAngle);
+    public double shoulderAngle(){
+        double shoulderAngle = shoulder_start_angle + (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
+        dashboardTelemetry.addData("shoulder position", shoulderMotor.getCurrentPosition());
+        dashboardTelemetry.addData("shoulder angle", shoulderAngle);
         return shoulderAngle;
     }
 
