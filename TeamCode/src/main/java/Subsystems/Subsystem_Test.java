@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -20,7 +21,9 @@ public class Subsystem_Test extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotorEx motor0;
-    private Servo servo0;
+
+    Lift lift = new Lift();
+    Hand hand = new Hand();
     public static double power =0.0;
     public static int position = 0;
 
@@ -40,9 +43,8 @@ public class Subsystem_Test extends OpMode {
         this.motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.motor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        this.servo0 = hardwareMap.get(Servo.class, "fingerServo");
-
+        hand.init(hardwareMap);
+        lift.init(hardwareMap);
         // Tell the driver that initialization is complete.
         dashboardTelemetry.addData("Status", "Initialized");
         dashboardTelemetry.update();
@@ -68,17 +70,10 @@ public class Subsystem_Test extends OpMode {
      */
     @Override
     public void loop() {
-//        this.motor0.getCurrentPosition();
-//
-//        this.motor0.setTargetPosition(position);
-//        this.motor0.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        this.motor0.setPower(power);
 
-        dashboardTelemetry.addData("motor0 power", motor0.getPower());
+        dashboardTelemetry.addData("wrist position", hand.wristServo.getPosition());
         dashboardTelemetry.addData("motor0 Position", motor0.getCurrentPosition());
         dashboardTelemetry.addData("Status", "Run Time: " + runtime.toString());
-
-        dashboardTelemetry.addData("servo position", servo0.getPosition());
         dashboardTelemetry.update();
     }
 

@@ -37,9 +37,10 @@ public class Arm {
     public static double shoulder_ticks_per_radians = 900;
 
     private double shoulder_target;
-    public static double shoulder_max_position;
-    public static double shoulder_target_change;
-    public static double shoulder_start_angle;
+    public static double shoulder_max_position = 1300;
+    public static double shoulder_min_position = -100;
+    public static double shoulder_target_change = 5;
+    public static double shoulder_start_angle = 2.2483675;
 
 
     //arm movement
@@ -80,7 +81,11 @@ public class Arm {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                shoulderMotor.setPower(0);
+                this.shoulderMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                this.shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                this.shoulderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                this.shoulderMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
                 shoulderIsReset = true;
                 dashboardTelemetry.addData("shoulder is reset", shoulderIsReset);
             }
@@ -92,11 +97,13 @@ public class Arm {
     public void moveShoulder(double up, double down){
         double direction = up - down;
         this.shoulder_target = shoulder_target + direction * shoulder_target_change;
-        if (shoulder_target< 0){
-            shoulder_target = 0;
+        if (shoulder_target< shoulder_min_position){
+            shoulder_target = shoulder_min_position;
         }else if (shoulder_target > shoulder_max_position){
             shoulder_target = shoulder_max_position;
         }
+        dashboardTelemetry. addData("shoulder target", shoulder_target);
+        dashboardTelemetry.update();
 
         shoulder_calc(shoulder_target);
 
@@ -111,7 +118,8 @@ public class Arm {
 
         }
         double shoulderAngle = shoulder_start_angle + (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
-        shoulderMotor.setPower(output + (shoulder_hold * Math.cos(shoulderAngle)));
+        shoulderAngle = shoulderAngle + shoulder_start_angle;
+        shoulderMotor.setPower(output);
     }
 
     public double shoulderAngle(){

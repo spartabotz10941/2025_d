@@ -81,6 +81,7 @@ public class PID_TEst extends OpMode {
     /*
      * Code to run ONCE when the driver hits START
      */
+
     @Override
     public void start() {
         runtime.reset();
@@ -100,7 +101,8 @@ public class PID_TEst extends OpMode {
         double output = 0;
         if (Math.abs(target_position - current_position) > 10){
             output = this.pid.calculate(current_position, target_position);
-            output = limiter(output, maxPower);
+            output = limiter(output, 1.0);
+
             this.motor0.setPower(output);
             this.motor1.setPower(output);
         }
