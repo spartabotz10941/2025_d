@@ -1,5 +1,9 @@
 package Subsystems;
 
+import static Subsystems.Arm.shoulder_hold;
+import static Subsystems.Arm.shoulder_start_angle;
+import static Subsystems.Arm.shoulder_ticks_per_radians;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -25,6 +29,7 @@ public class PID_TEst extends OpMode {
     private DcMotorEx motor1;
     private Servo servo0;
 
+
     public static double current_position;
     public static double target_position = 0;
     public static double kI = 0;
@@ -49,17 +54,17 @@ public class PID_TEst extends OpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        this.motor0 = hardwareMap.get(DcMotorEx.class,"liftMotor2");
+        this.motor0 = hardwareMap.get(DcMotorEx.class,"shoulderMotor");
         this.motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.motor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
+        /*
         this.motor1 = hardwareMap.get(DcMotorEx.class,"liftMotor");
         this.motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.motor1.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        */
         pid = new PIDController(kP, kI, kD);
 
         // Tell the driver that initialization is complete.
@@ -78,6 +83,7 @@ public class PID_TEst extends OpMode {
     public void init_loop() {
     }
 
+
     /*
      * Code to run ONCE when the driver hits START
      */
@@ -85,6 +91,7 @@ public class PID_TEst extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        target_position = this.motor0.getCurrentPosition();
     }
 
     /*
@@ -99,12 +106,13 @@ public class PID_TEst extends OpMode {
         dashboardTelemetry.addData("current position", current_position);
         pid.setPID(kP,kI,kD);
         double output = 0;
-        if (Math.abs(target_position - current_position) > 10){
+        if (Math.abs(target_position - current_position) > 5){
             output = this.pid.calculate(current_position, target_position);
             output = limiter(output, 1.0);
 
-            this.motor0.setPower(output);
-            this.motor1.setPower(output);
+            double shoulderAngle = shoulder_start_angle - (motor0.getCurrentPosition()/shoulder_ticks_per_radians);
+
+            this.motor0.setPower(output + shoulder_hold* Math.cos(shoulderAngle));
         }
 
 

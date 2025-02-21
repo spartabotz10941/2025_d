@@ -5,12 +5,14 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @Config
 public class DriveTrain {
@@ -18,6 +20,7 @@ public class DriveTrain {
     private DcMotorEx rightFront;
     private DcMotorEx leftBack;
     private DcMotorEx rightBack;
+    private GoBildaPinpointDriver pinpoint;
     private double angle;
     private static double lStickX = 0.0;
     private static double lStickY = 0.0;
@@ -51,6 +54,10 @@ public class DriveTrain {
         this.rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
+        pinpoint.resetPosAndIMU();
+        pinpoint.setOffsets(-4,0);
     }
 
      public void getController(double a, double b, double c, double d){
@@ -64,38 +71,48 @@ public class DriveTrain {
          dashboardTelemetry.addData("right X",rStickX);
          //dashboardTelemetry.update();
      }
-    public void Drive(){
-        double max;
+    public void Drive(double lStickX, double lStickY, double rStickX){
 
         // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-        double axial   = lStickY;  // Note: pushing stick forward gives negative value
-        double lateral = lStickX;
-        double yaw     = rStickX;
+        double y = lStickY; // Remember, this is reversed!
+        double x = lStickX; // this is strafing
+        double rx = rStickX;
 
-        // Combine the joystick requests for each axis-motion to determine each wheel's power.
-        // Set up a variable for each drive wheel to save the power level for telemetry.
-        double leftFrontPower  = axial + lateral + yaw;
-        double rightFrontPower = axial - lateral - yaw;
-        double leftBackPower   = axial - lateral + yaw;
-        double rightBackPower  = axial + lateral - yaw;
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all the powers maintain the same ratio, but only when
+        // at least one is out of the range [-1, 1]
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double leftFrontPower = (y + x + rx) / denominator;
+        double leftRearPower = (y - x + rx) / denominator;
+        double rightFrontPower = (y - x - rx) / denominator;
+        double rightRearPower = (y + x - rx) / denominator;
 
-        // Normalize the values so no wheel power exceeds 100%
-        // This ensures that the robot maintains the desired motion.
-        max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-        max = Math.max(max, Math.abs(leftBackPower));
-        max = Math.max(max, Math.abs(rightBackPower));
-
-        if (max > 1.0) {
-            leftFrontPower /= max;
-            rightFrontPower /= max;
-            leftBackPower /= max;
-            rightBackPower /= max;
-
-        }
         leftFront.setPower(leftFrontPower);
         rightFront.setPower(rightFrontPower);
-        leftBack.setPower(leftBackPower);
-        rightBack.setPower(rightBackPower);
+        leftBack.setPower(leftRearPower);
+        rightBack.setPower(rightRearPower);
+    }
+
+
+    public void DriveCentric(double lStickX, double lStickY, double rStickX){
+
+        // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
+        double y = -lStickY; // Remember, this is reversed!
+        double x = lStickX; // this is strafing
+        double rx = rStickX;
+        pinpoint.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+        double robotAngle = pinpoint.getHeading();
+
+        double theta = Math.atan2(y, x);
+        double r = Math.hypot(y, x);
+
+        theta = AngleUnit.normalizeRadians(theta - robotAngle);
+
+        double newForward = r * Math.sin(theta);
+        double newRight = r * Math.cos(theta);
+
+        Drive(newRight, newForward, rx);
+
     }
 
 

@@ -29,17 +29,17 @@ public class Arm {
     private boolean shoulderIsReset = false;
 
     //shoulder PID
-    private static PIDController shoulder_controller;
-    public static double shoulder_kP = 0.0055;
-    public static double shoulder_kI = 0.45;
-    public static double shoulder_kD = 0.003;
+    public static PIDController shoulder_controller;
+    public static double shoulder_kP = 0.004;
+    public static double shoulder_kI = 0.01;
+    public static double shoulder_kD = 0;
     public static double shoulder_hold = 0.15;
-    public static double shoulder_ticks_per_radians = 900;
+    public static double shoulder_ticks_per_radians = 1100;
 
     private double shoulder_target;
-    public static double shoulder_max_position = 1300;
-    public static double shoulder_min_position = -100;
-    public static double shoulder_target_change = 5;
+    public static double shoulder_max_position = 100;
+    public static double shoulder_min_position = -1300;
+    public static double shoulder_target_change = 20;
     public static double shoulder_start_angle = 2.2483675;
 
 
@@ -65,9 +65,11 @@ public class Arm {
         this.shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.shoulderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.shoulderMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
         this.shoulder_controller = new PIDController (shoulder_kP, shoulder_kI, shoulder_kD);
 
         shoulderTouch = hwMap.get(TouchSensor.class,"shoulderReset" );
+        shoulder_target = shoulderMotor.getCurrentPosition();
 
     }
 
@@ -92,8 +94,6 @@ public class Arm {
         }
         dashboardTelemetry.update();
     }
-
-
     public void moveShoulder(double up, double down){
         double direction = up - down;
         this.shoulder_target = shoulder_target + direction * shoulder_target_change;
@@ -117,7 +117,7 @@ public class Arm {
             output = PID_TEst.limiter(output, 1.0);
 
         }
-        double shoulderAngle = shoulder_start_angle + (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
+        double shoulderAngle = shoulder_start_angle - (shoulderMotor.getCurrentPosition()/shoulder_ticks_per_radians);
         shoulderAngle = shoulderAngle + shoulder_start_angle;
         shoulderMotor.setPower(output);
     }

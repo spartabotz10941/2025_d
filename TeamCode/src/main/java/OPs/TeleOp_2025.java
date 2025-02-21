@@ -61,13 +61,12 @@ public class TeleOp_2025  extends OpMode{
         }
 
         gamePadInput();
-        train.getController(g1LeftStickX,g1RightStickX,g1LeftStickY, g1RightStickY);
-        train.Drive();
+        train.DriveCentric(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         hand.moveHand(gamepad2.a, gamepad2.b);
         //lift.Ascend(- gamepad2.left_stick_y);
         lift.liftMove(-gamepad2.left_stick_y);
         lift.hook_bar(gamepad2.dpad_down, gamepad2.dpad_up);
-        //arm.moveShoulder(gamepad2.right_trigger, gamepad2.left_trigger);
+        arm.moveShoulder(gamepad2.right_trigger, gamepad2.left_trigger);
 
         dashboardTelemetry.addData("shoulder andgle", arm.shoulderAngle());
         dashboardTelemetry.update();

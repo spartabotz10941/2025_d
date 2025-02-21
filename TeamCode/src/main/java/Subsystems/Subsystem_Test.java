@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Autonomous(name = "Subsystem_Test")
 //this line allows you to modify variables inside the dashboard
 @Config
-public class Subsystem_Test extends OpMode {
+public class    Subsystem_Test extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotorEx motor0;

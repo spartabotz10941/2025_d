@@ -26,9 +26,9 @@ public class Lift {
     public static double lift_target_change = 10;
     public static double lift_max_position = 3400;
     private static PIDController lift_controller;
-    public static double lift_kP = 0.0008;
+    public static double lift_kP = 0.017;
     public static double lift_kI = 0.0;
-    public static double lift_kD = 0.017;
+    public static double lift_kD = 0.0008;
     public static double lift_kH = 0.001;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -103,8 +103,11 @@ public class Lift {
         lift_calc(lift_target);
     }
     public void liftMove(double power){
+        double liftPosition = liftMotorL. getCurrentPosition();
         power = power - lift_kH;
         power = PID_TEst.limiter(power, 1.0);
+
+
         liftMotorL.setPower(power);
         liftMotorR.setPower(power);
         dashboardTelemetry. addData("right pos", liftMotorR.getCurrentPosition());
