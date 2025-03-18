@@ -34,7 +34,7 @@ public class Arm {
     public static double shoulder_kI = 0.01;
     public static double shoulder_kD = 0;
     public static double shoulder_hold = 0.15;
-    public static double shoulder_ticks_per_radians = 1100;
+    public static double shoulder_ticks_per_radians = 1000;
 
     private double shoulder_target;
     public static double shoulder_max_position = 100;

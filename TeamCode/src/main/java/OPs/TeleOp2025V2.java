@@ -8,22 +8,18 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import Subsystems.Arm;
 import Subsystems.ArmV2;
 import Subsystems.DriveTrain;
 import Subsystems.Hand;
 import Subsystems.Lift;
 import Subsystems.MyLimeLight;
 import Subsystems.Supersystems;
-
-@TeleOp (name = "TeleOp 2025")
 @Config
-
-public class TeleOp_2025 extends OpMode{
+@TeleOp
+public class TeleOp2025V2 extends OpMode {
     public static DriveTrain train ;
     public static Lift lift ;
     public static ArmV2 arm ;
@@ -73,9 +69,16 @@ public class TeleOp_2025 extends OpMode{
         //if (gamepad2.y){lift.lift_state = 0;}
         //if (gamepad2.a){lift.lift_state = 1;}
         //lift.liftControlSwitch();
-        lift.liftMove((gamepad2.right_trigger-gamepad2.left_trigger));
+        //lift.liftMove((gamepad2.right_trigger-gamepad2.left_trigger));
         dashboardTelemetry.addData("triggers", gamepad2.right_trigger-gamepad2.left_trigger);
         arm.manualMove(-gamepad2.left_stick_y);
+
+        if (gamepad2.dpad_up){supersystems.sampleDropoff();}
+        if (gamepad2.dpad_down){supersystems.samplePickUp();}
+        if (gamepad2.dpad_right){supersystems.liftlift();}
+
+
+
 
         //Linus
         if (gamepad1.right_trigger > 0){
@@ -89,6 +92,8 @@ public class TeleOp_2025 extends OpMode{
         train.reset_odo(gamepad1.share);
 
 
+
+        supersystems.update();
         dashboardTelemetry.addData("shoulder andgle", arm.shoulderAngle());
         dashboardTelemetry.update();
 

@@ -1,22 +1,22 @@
 package Subsystems;
 
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.util.MathUtils;
 import com.pedropathing.localization.GoBildaPinpointDriver;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @Config
-public class DriveTrain {
+public class DriveTrainV2 {
     private DcMotorEx leftFront;
     private DcMotorEx rightFront;
     private DcMotorEx leftBack;
@@ -32,11 +32,18 @@ public class DriveTrain {
     private static double rStickY = 0.0;
     private static double turningSpeedMultiplier = 1;
     private static double robotSpeedMultiplier = 2;
+    private static final double TWO_PI = 2 * Math.PI;
+    public static double target = 0;
+    public static double rot = 0;
 
+    private static PIDController rotational_controller;
+    public static double rot_kP = 0.0;
+    public static double rot_kI = 0.0;
+    public static double rot_kD = 0.0;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-    public DriveTrain (@NonNull HardwareMap hwMap){
+    public DriveTrainV2 (@NonNull HardwareMap hwMap){
 
         this.leftFront = hwMap.get(DcMotorEx.class, "leftFront");
         this.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -60,26 +67,28 @@ public class DriveTrain {
         this.rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        rotational_controller = new PIDController(rot_kP, rot_kI, rot_kD);
+
         pinpoint = hwMap.get(GoBildaPinpointDriver.class,"pinpoint");
         pinpoint.recalibrateIMU();
         pinpoint.setOffsets(-4,0);
     }
 
-     public void getController(double a, double b, double c, double d){
+    public void getController(double a, double b, double c, double d){
         lStickX = a;
         rStickX = b;
         lStickY = c;
         rStickY = d;
-         dashboardTelemetry.addData("left Y",lStickY);
-         dashboardTelemetry.addData("left X",lStickX);
-         dashboardTelemetry.addData("right Y",rStickY);
-         dashboardTelemetry.addData("right X",rStickX);
-         //dashboardTelemetry.update();
-     }
+        dashboardTelemetry.addData("left Y",lStickY);
+        dashboardTelemetry.addData("left X",lStickX);
+        dashboardTelemetry.addData("right Y",rStickY);
+        dashboardTelemetry.addData("right X",rStickX);
+        //dashboardTelemetry.update();
+    }
 
-     public void reset_odo(boolean reset){
+    public void reset_odo(boolean reset){
         if (reset){pinpoint.resetPosAndIMU();}
-     }
+    }
     public void Drive(double lStickX, double lStickY, double rStickX){
 
         // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -87,14 +96,16 @@ public class DriveTrain {
         double x = lStickX; // this is strafing
         double rx = rStickX;
 
+        rot = Rotational_PID();
+
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio, but only when
         // at least one is out of the range [-1, 1]
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double leftFrontPower = (y + x + rx) / denominator;
-        double leftRearPower = (y - x + rx) / denominator;
-        double rightFrontPower = (y - x - rx) / denominator;
-        double rightRearPower = (y + x - rx) / denominator;
+        double leftFrontPower = ((y + x + rx) / denominator) - rot ;
+        double leftRearPower = ((y - x + rx) / denominator) - rot ;
+        double rightFrontPower = ((y - x - rx) / denominator) + rot ;
+        double rightRearPower = ((y + x - rx) / denominator) + rot ;
 
         leftFront.setPower(leftFrontPower);
         rightFront.setPower(rightFrontPower);
@@ -135,7 +146,20 @@ public class DriveTrain {
         train_pos = move;
     }
 
+    public double Rotational_PID(){
+        rotational_controller.setPID(rot_kP, rot_kI, rot_kD);
+        double pow = 0;
+        pow = rotational_controller.calculate(normalize(), target);
+        return pow;
+    }
 
+    double normalize() {
+        pinpoint.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+        double theta = pinpoint.getHeading();
+        double normalized = theta % TWO_PI;
+        normalized = (normalized + TWO_PI) % TWO_PI;
+        return normalized <= Math.PI ? normalized : normalized - TWO_PI;
+    }
     public void manualMove(double power){
         leftBack.setPower(power);
         leftFront.setPower(power);
@@ -143,6 +167,9 @@ public class DriveTrain {
         rightFront.setPower(power);
     }
 
+    public void train_set_heading_basket(){
+        target = 10;
+    }
 
 
 }
