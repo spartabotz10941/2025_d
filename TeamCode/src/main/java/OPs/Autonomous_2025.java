@@ -5,9 +5,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import Subsystems.Arm;
 import Subsystems.ArmV2;
-import Subsystems.DriveTrain;
+import Subsystems.DriveTrainV2;
 import Subsystems.Lift;
 import Subsystems.Supersystems;
 
@@ -17,7 +16,7 @@ public class Autonomous_2025 extends OpMode {
     ArmV2 arm ;
     Lift lift ;
     Supersystems supersystems ;
-    DriveTrain train;
+    DriveTrainV2 train;
 
     private int caseselector = 0;
     private int centeringselector = 0;
@@ -26,7 +25,7 @@ public class Autonomous_2025 extends OpMode {
     public void init(){
         supersystems = new Supersystems(hardwareMap);
         arm = new ArmV2(hardwareMap);
-        train = new DriveTrain(hardwareMap);
+        train = new DriveTrainV2(hardwareMap);
 
     }
 
@@ -73,7 +72,7 @@ public class Autonomous_2025 extends OpMode {
     private void centeringSwitch (){
         switch (centeringselector){
             case 0:
-                supersystems.centerOnSample();
+
                 if (supersystems.counter > 10){centeringselector = 1;}
             case 1:
                 supersystems.follower.update();

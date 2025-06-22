@@ -1,7 +1,5 @@
 package Subsystems;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -13,70 +11,75 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Config
 public class ArmV2 {
-    DcMotorEx motor;
-    PIDController pid;
-    public static double kP = 0.008;
-    public static double kI = 0;
-    public static double kD = 0;
+    DcMotorEx pulleymotor;
+    DcMotorEx gearmotor;
+    PIDController pulleypid;
+    PIDController gearpid;
+    public static double pulleykP = 0.0;
+    public static double pulleykI = 0;
+    public static double pulleykD = 0;
+    public static double gearkP = 0.0;
+    public static double gearkI = 0;
+    public static double gearkD = 0;
     public static int posDown = -823;
-    public static int posClip = -424;
-    public static int posBase = -20;
-    public static int posHook = -424;
-    public static int posBasket = 119;
-    public static int posSpecimen = 119;
-    static int targetPosition;
-    public static double ff = .15;
+    public static int geartargetPosition;
+    public static double gearoutput;
+    public static double gearPosition;
+    public static int pulleytargetPosition;
+    public static double pulleyoutput;
+    public static double pulleyPosition;
 
-    static double degPerTick = 0.17241379;
-
-    static double shoulder_start_angle = 128;
+    public static int pulleyForwardPosition = 0;
+    public static int pulleyBackPosition  = -1940;
 
     public ArmV2(@NonNull HardwareMap hwMap){
-        motor = hwMap.get(DcMotorEx.class,"shoulderMotor");
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        pid = new PIDController(kP, kI, kD);
+        pulleymotor = hwMap.get(DcMotorEx.class,"pulleymotor");
+        pulleymotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pulleymotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //pulleymotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        pulleypid = new PIDController(pulleykP, pulleykI, pulleykD);
+
+        gearmotor = hwMap.get(DcMotorEx.class,"gearmotor");
+        gearmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        gearmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        gearmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        gearmotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        gearpid = new PIDController(gearkP, gearkI, gearkD);
     }
+    public void pulleyupdate(){
+        pulleypid.setPID(pulleykP, pulleykI, pulleykD);
+        pulleyoutput = pulleypid.calculate(pulleymotor.getCurrentPosition(), pulleytargetPosition);
+
+        pulleyPosition = pulleymotor.getCurrentPosition();
+
+        pulleymotor.setPower(pulleyoutput);
+    }
+
+    public void gearupdate(){
+        gearpid.setPID(gearkP, gearkI, gearkD);
+        gearoutput = gearpid.calculate(gearmotor.getCurrentPosition(), geartargetPosition);
+
+        gearPosition = gearmotor.getCurrentPosition();
+
+        pulleymotor.setPower(gearoutput);
+    }
+
+    public int getGearPosition(){
+        return gearmotor.getCurrentPosition();
+    }
+    public double getGearPower(){
+        return gearmotor.getPower();
+    }
+
+
     public void update(){
-        pid.setPID(kP, kI, kD);
-        double output = pid.calculate(motor.getCurrentPosition(), targetPosition);
-
-        motor.setPower(output +ff*Math.cos(Math.toRadians(shoulderAngle())));
+        gearupdate();
+        pulleyupdate();
+        gearPosition = gearmotor.getCurrentPosition();
+        pulleyPosition = pulleymotor.getCurrentPosition();
     }
 
-    public void setPosition(int i){
-        targetPosition = i;
-    }
-    public void setPosition_PickUp(){
-        targetPosition = posDown;
-    }
-    public void setPosition_SpecimenPickUp(){
-        targetPosition = posSpecimen;
-    }
-    public void setPosition_Hook(){
-        targetPosition = posHook;
-    }
-    public void setPosition_Basket(){
-        targetPosition = posBasket;
-    }
-    public void setPositionBase(){
-        targetPosition = posBase;
-    }
-    public double shoulderAngle(){
-        return shoulder_start_angle + (motor.getCurrentPosition()*degPerTick);
-    }
-
-    public int getPosition(){
-        return motor.getCurrentPosition();
-    }
-    public double getPower(){
-        return motor.getPower();
-    }
-
-
-    public void manualMove(double input){
-        motor.setPower((input/2.5)+ff*Math.cos(shoulderAngle()));
+    public void pulleymanualMove(double input){
+        pulleymotor.setPower(input);
     }
 }

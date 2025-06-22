@@ -5,28 +5,24 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import java.util.List;
-
 
 //this line identifies if this is an autonomous or teleop program
-@Autonomous(name = "Subsystem_Test_Lift")
+@TeleOp(name = "Subsystem_Test_Arm_V2")
 //this line allows you to modify variables inside the dashboard
 @Config
-public class Subsystem_Test_LIft extends OpMode {
-    public static ArmV2 arm2;
-
-
+public class    Subsystem_Test_ArmV2 extends OpMode {
+    public static ArmV2 arm;
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotorEx motor0;
-
-    public static Lift lift ;
-    public static Hand hand ;
     public static int i =0;
     public static int position = 0;
 
@@ -34,7 +30,6 @@ public class Subsystem_Test_LIft extends OpMode {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     GamepadEx g1;
-    Supersystems supersystem;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -50,48 +45,38 @@ public class Subsystem_Test_LIft extends OpMode {
         this.motor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hand.init(hardwareMap);
+        lift.init(hardwareMap);
+
          */
-        lift = new Lift(hardwareMap);
-        supersystem = new Supersystems(hardwareMap);
-
-
         g1 = new GamepadEx(gamepad1);
-        arm2 = new ArmV2(hardwareMap);
+        arm = new ArmV2(hardwareMap);
         // Tell the driver that initialization is complete.
         dashboardTelemetry.addData("Status", "Initialized");
         dashboardTelemetry.update();
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit START
-     */
     @Override
     public void init_loop() {
     }
 
-    /*
-     * Code to run ONCE when the driver hits START
-     */
     @Override
     public void start() {
         runtime.reset();
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits START but before they hit STOP
-     */
     @Override
     public void loop() {
-        //motor0.setPower(power);
-        //dashboardTelemetry.addData("wrist position", hand.wristServo.getPosition());
-        //dashboardTelemetry.addData("motor0 Position", motor0.getCurrentPosition());
-        //arm2.setPosition(i);
-        //arm2.update();
-        //lift.update(i);
-        //supersystem.basePosition();
-        //List<Double> coordinates = myLimeLight.getCoordinatesList();
+        arm.update();
+        // -1956
 
+        dashboardTelemetry.addData("Status", "Run Time: " + runtime.toString());
+        dashboardTelemetry.addData("gear PID", ArmV2.gearoutput);
+        dashboardTelemetry.addData("gear target", ArmV2.geartargetPosition);
+        dashboardTelemetry.addData("gear current Position", ArmV2.gearPosition);
 
+        dashboardTelemetry.addData("pulley PID", ArmV2.pulleyoutput);
+        dashboardTelemetry.addData("pulley target", ArmV2.pulleytargetPosition);
+        dashboardTelemetry.addData("pulley current Position", ArmV2.pulleyPosition);
 
         dashboardTelemetry.update();
     }

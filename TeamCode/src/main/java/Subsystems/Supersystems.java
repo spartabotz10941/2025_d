@@ -21,7 +21,7 @@ public class Supersystems {
     public static Lift lift;
     public static ArmV2 arm ;
     public static Hand hand ;
-    public static MyLimeLight myLimeLight;
+
     public int counter = 0;
     public double tx;
     public double ty;
@@ -35,22 +35,21 @@ public class Supersystems {
         lift = new Lift(hardwareMap);
         arm = new ArmV2 (hardwareMap);
         hand = new Hand(hardwareMap);
-        myLimeLight = new MyLimeLight(hardwareMap);
-        myLimeLight.start(myLimeLight.red);
+
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
     }
 
     public void sampleDropoff(){
         lift.setLiftDropoff();
-        arm.setPosition_Basket();
+
         hand.setWristDropoff();
 
     }
 
     public void samplePickUp (){
         lift.setLiftPickUp();
-        arm.setPosition_PickUp();
+
         hand.setWristPickUp();
         try {
             Thread.sleep(100);
@@ -63,7 +62,7 @@ public class Supersystems {
 
     public void specimenPickUp (){
         lift.setLiftPickUp();
-        arm.setPosition_SpecimenPickUp();
+
         hand.setWristSpecimenPickUp();
         try {
             Thread.sleep(100);
@@ -76,7 +75,7 @@ public class Supersystems {
 
     public void specimenHook(){
         lift.setLiftHook();
-        arm.setPosition_Hook();
+
         hand.setWristMiddle();
         hand.setHandClose();
     }
@@ -90,7 +89,7 @@ public class Supersystems {
 
     public void basePosition(){
         lift.setLiftPickUp();
-        arm.setPositionBase();
+
         hand.setWristMiddle();
     }
 
@@ -104,7 +103,7 @@ public class Supersystems {
     }
     public void liftlift(){
         lift.setliftlift();
-        arm.setPositionBase();
+
 
     }
     public void openHand(){
@@ -116,17 +115,7 @@ public class Supersystems {
         }
     }
 
-    public void centerOnSample(){
-        myLimeLight.update();
-        tx = myLimeLight.getTx();
-        ty = myLimeLight.getTy();
-        //follower.setStartingPose(start_pose);
 
-        //Pose pose = new Pose(ty * 0.115,-tx * 0.225);
-
-        //path= new Path(new BezierLine(new Point(0,0), new Point(pose)));
-        //counter = counter + 1;
-    }
     public void wristHookOn(){
         hand.setWristHook();
     }

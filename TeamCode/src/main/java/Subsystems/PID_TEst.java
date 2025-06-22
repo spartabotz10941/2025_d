@@ -1,8 +1,6 @@
 package Subsystems;
 
-import static Subsystems.Arm.shoulder_hold;
-import static Subsystems.Arm.shoulder_start_angle;
-import static Subsystems.Arm.shoulder_ticks_per_radians;
+
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -106,14 +104,7 @@ public class PID_TEst extends OpMode {
         dashboardTelemetry.addData("current position", current_position);
         pid.setPID(kP,kI,kD);
         double output = 0;
-        if (Math.abs(target_position - current_position) > 5){
-            output = this.pid.calculate(current_position, target_position);
-            output = limiter(output, 1.0);
 
-            double shoulderAngle = shoulder_start_angle - (motor0.getCurrentPosition()/shoulder_ticks_per_radians);
-
-            this.motor0.setPower(output + shoulder_hold* Math.cos(shoulderAngle));
-        }
 
 
 

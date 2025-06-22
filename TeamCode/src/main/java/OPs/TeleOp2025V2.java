@@ -1,9 +1,5 @@
 package OPs;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -12,20 +8,18 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import Subsystems.ArmV2;
-import Subsystems.DriveTrain;
+import Subsystems.DriveTrainV2;
 import Subsystems.Hand;
 import Subsystems.Lift;
-import Subsystems.MyLimeLight;
 import Subsystems.Supersystems;
 @Config
 @TeleOp
 public class TeleOp2025V2 extends OpMode {
-    public static DriveTrain train ;
+    public static DriveTrainV2 train ;
     public static Lift lift ;
     public static ArmV2 arm ;
     public static Hand hand ;
     public static Supersystems supersystems;
-    public static MyLimeLight myLimeLight;
     public double g1LeftStickY = 0.0;
     public double g1LeftStickX = 0.0;
 
@@ -43,13 +37,12 @@ public class TeleOp2025V2 extends OpMode {
 
     @Override
     public void init(){
-        train = new DriveTrain(hardwareMap);
+        train = new DriveTrainV2(hardwareMap);
         lift = new Lift(hardwareMap);
         arm = new ArmV2 (hardwareMap);
         hand = new Hand(hardwareMap);
         supersystems = new Supersystems(hardwareMap);
-        myLimeLight = new MyLimeLight(hardwareMap);
-        myLimeLight.start(2);
+
     }
 
     @Override
@@ -71,7 +64,7 @@ public class TeleOp2025V2 extends OpMode {
         //lift.liftControlSwitch();
         //lift.liftMove((gamepad2.right_trigger-gamepad2.left_trigger));
         dashboardTelemetry.addData("triggers", gamepad2.right_trigger-gamepad2.left_trigger);
-        arm.manualMove(-gamepad2.left_stick_y);
+
 
         if (gamepad2.dpad_up){supersystems.sampleDropoff();}
         if (gamepad2.dpad_down){supersystems.samplePickUp();}
@@ -94,7 +87,7 @@ public class TeleOp2025V2 extends OpMode {
 
 
         supersystems.update();
-        dashboardTelemetry.addData("shoulder andgle", arm.shoulderAngle());
+
         dashboardTelemetry.update();
 
     }
