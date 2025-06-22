@@ -36,7 +36,7 @@ public class ArmV2 {
         pulleymotor = hwMap.get(DcMotorEx.class,"pulleymotor");
         pulleymotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pulleymotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //pulleymotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        pulleymotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pulleypid = new PIDController(pulleykP, pulleykI, pulleykD);
 
         gearmotor = hwMap.get(DcMotorEx.class,"gearmotor");
