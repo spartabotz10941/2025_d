@@ -11,12 +11,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@TeleOp(name = "Subsystem_Test")
+@TeleOp(name = "Supersystem_Test")
 //this line allows you to modify variables inside the dashboard
 
-public class    Subsystem_Test_Limelight extends OpMode {
+public class    Supersystem_Test extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
-    public static Limelight lmg;
+    public static Supersystems_opmode sup;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
@@ -25,7 +25,8 @@ public class    Subsystem_Test_Limelight extends OpMode {
      */
     @Override
     public void init() {
-        lmg = new Limelight(hardwareMap);
+        sup = new Supersystems_opmode(hardwareMap);
+
     }
 
     /*
@@ -48,10 +49,8 @@ public class    Subsystem_Test_Limelight extends OpMode {
      */
     @Override
     public void loop() {
-        lmg.updateLimelightData();
-        dashboardTelemetry.addData("X", lmg.getXOffset());
-        dashboardTelemetry.addData("Y", lmg.getYOffset());
-        dashboardTelemetry.addData("corners", lmg.getcorners());
+        sup.intake_sequence();
+        dashboardTelemetry.addData("state", sup.state);
         dashboardTelemetry.update();
     }
 
@@ -60,6 +59,6 @@ public class    Subsystem_Test_Limelight extends OpMode {
      */
     @Override
     public void stop() {
-        lmg.stopLimelight();
+
     }
 }

@@ -13,44 +13,18 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-
-//this line identifies if this is an autonomous or teleop program
 @TeleOp(name = "Subsystem_Test_Arm_V2")
 //this line allows you to modify variables inside the dashboard
 @Config
 public class    Subsystem_Test_ArmV2 extends OpMode {
-    public static ArmV2 arm;
-    // Declare OpMode members.
+    private Supersystems supersystems;
     private ElapsedTime runtime = new ElapsedTime();
-    public static int i =0;
-    public static int position = 0;
-
-    //this section allows us to access telemetry data from a browser
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
-    GamepadEx g1;
 
-    /*
-     * Code to run ONCE when the driver hits INIT
-     */
     @Override
     public void init() {
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        /*
-        this.motor0 = hardwareMap.get(DcMotorEx.class,"shoulderMotor");
-        this.motor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.motor0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.motor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hand.init(hardwareMap);
-        lift.init(hardwareMap);
-
-         */
-        g1 = new GamepadEx(gamepad1);
-        arm = new ArmV2(hardwareMap);
-        // Tell the driver that initialization is complete.
+        supersystems = new Supersystems(hardwareMap);
         dashboardTelemetry.addData("Status", "Initialized");
         dashboardTelemetry.update();
     }
@@ -66,8 +40,11 @@ public class    Subsystem_Test_ArmV2 extends OpMode {
 
     @Override
     public void loop() {
-        arm.update();
-        // -1956
+        if (gamepad1.a){supersystems.armBackwards();}
+        if(gamepad1.b){supersystems.armForward();}
+        if(gamepad1.back){supersystems.armStarting();}
+        supersystems.update();
+
 
         dashboardTelemetry.addData("Status", "Run Time: " + runtime.toString());
         dashboardTelemetry.addData("gear PID", ArmV2.gearoutput);

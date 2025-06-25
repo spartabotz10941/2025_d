@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.util.MathUtils;
 import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -33,13 +32,23 @@ public class DriveTrainV2 {
     private static double turningSpeedMultiplier = 1;
     private static double robotSpeedMultiplier = 2;
     private static final double TWO_PI = 2 * Math.PI;
-    public static double target = 0;
+    public static double rot_target = 0;
     public static double rot = 0;
+    public boolean run_rotational = true;
+    public double update_str_target = 0;
 
     private static PIDController rotational_controller;
     public static double rot_kP = 0.0;
     public static double rot_kI = 0.0;
     public static double rot_kD = 0.0;
+
+    private static PIDController strafe_controller;
+    public static double str_kP = 0.0;
+    public static double str_kI = 0.0;
+    public static double str_kD = 0.0;
+    public static double str_pow = 0;
+
+
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
@@ -102,10 +111,10 @@ public class DriveTrainV2 {
         // This ensures all the powers maintain the same ratio, but only when
         // at least one is out of the range [-1, 1]
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double leftFrontPower = ((y + x + rx) / denominator) - rot ;
-        double leftRearPower = ((y - x + rx) / denominator) - rot ;
-        double rightFrontPower = ((y - x - rx) / denominator) + rot ;
-        double rightRearPower = ((y + x - rx) / denominator) + rot ;
+        double leftFrontPower = ((y + x + rx) / denominator) - rot + str_pow;
+        double leftRearPower = ((y - x + rx) / denominator) - rot - str_pow;
+        double rightFrontPower = ((y - x - rx) / denominator) + rot -str_pow;
+        double rightRearPower = ((y + x - rx) / denominator) + rot +str_pow;
 
         leftFront.setPower(leftFrontPower);
         rightFront.setPower(rightFrontPower);
@@ -149,16 +158,53 @@ public class DriveTrainV2 {
     public double Rotational_PID(){
         rotational_controller.setPID(rot_kP, rot_kI, rot_kD);
         double pow = 0;
-        pow = rotational_controller.calculate(normalize(), target);
+        pinpoint.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+        pow = rotational_controller.calculate(pinpoint.getHeading(), pinpoint.getHeading()+smallestAngleDifference());
+
+        if (rotational_controller.atSetPoint()){
+            pow = 0;
+            run_rotational = false;
+        };
         return pow;
     }
+    public void update_run_rotational(){
+        if (update_str_target != rot_target){
+            update_str_target = rot_target;
+            run_rotational = true;
+        }
+    }
 
-    double normalize() {
-        pinpoint.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
-        double theta = pinpoint.getHeading();
+    public  double normalizeToTwoPi(double theta) {
+
         double normalized = theta % TWO_PI;
-        normalized = (normalized + TWO_PI) % TWO_PI;
-        return normalized <= Math.PI ? normalized : normalized - TWO_PI;
+        if (normalized < 0) {
+            normalized += TWO_PI;
+        }
+
+        return normalized;
+    }
+    public  double smallestAngleDifference() {
+        pinpoint.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+        // Normalize both angles to [0, 2π)
+        double current = normalizeToTwoPi(pinpoint.getHeading());
+
+        // Compute the difference and normalize to (-π, π]
+        double diff = rot_target - current;
+        if (diff > Math.PI) {
+            diff -= TWO_PI;
+        } else if (diff <= -Math.PI) {
+            diff += TWO_PI;
+        }
+        return diff;
+
+    }
+
+
+    public void strafePid(double str_target){
+        strafe_controller.setPID(str_kP, str_kI, str_kD);
+        pinpoint.update();
+        str_pow= strafe_controller.calculate(pinpoint.getEncoderX(), str_target);
+
     }
     public void manualMove(double power){
         leftBack.setPower(power);
@@ -168,7 +214,7 @@ public class DriveTrainV2 {
     }
 
     public void train_set_heading_basket(){
-        target = 10;
+        rot_target = 10;
     }
 
 

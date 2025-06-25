@@ -89,8 +89,8 @@ public class    Subsystem_Test extends OpMode {
 
         dashboardTelemetry.addData("Status", "Run Time: " + runtime.toString());
         dashboardTelemetry.addData("PID", DriveTrainV2.rot);
-        dashboardTelemetry.addData("target", DriveTrainV2.target);
-        dashboardTelemetry.addData("current", drive.normalize());
+        dashboardTelemetry.addData("target", DriveTrainV2.rot_target);
+        //dashboardTelemetry.addData("current", drive.normalize());
 
         dashboardTelemetry.update();
     }

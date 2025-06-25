@@ -18,7 +18,7 @@ import pedroPathing.constants.LConstants;
 
 @Config
 public class Supersystems {
-    public static Lift lift;
+    //public static Lift lift;
     public static ArmV2 arm ;
     public static Hand hand ;
 
@@ -32,7 +32,7 @@ public class Supersystems {
 
 
     public Supersystems(@NonNull HardwareMap hardwareMap){
-        lift = new Lift(hardwareMap);
+        //lift = new Lift(hardwareMap);
         arm = new ArmV2 (hardwareMap);
         hand = new Hand(hardwareMap);
 
@@ -40,88 +40,31 @@ public class Supersystems {
         follower = new Follower(hardwareMap);
     }
 
-    public void sampleDropoff(){
-        lift.setLiftDropoff();
-
-        hand.setWristDropoff();
-
+    public void armForward (){
+        arm.setGearPositionForward();
+        arm.setPulleyPositionForward();
     }
 
-    public void samplePickUp (){
-        lift.setLiftPickUp();
-
-        hand.setWristPickUp();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        hand.setHandOpen();
-
+    public void armBackwards(){
+        arm.setPulleyPositionBackward();
+        arm.setGearPositionBackward();
     }
 
-    public void specimenPickUp (){
-        lift.setLiftPickUp();
-
-        hand.setWristSpecimenPickUp();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        hand.setHandOpen();
-
+    public void armStarting(){
+        arm.setGearPositionBackward();
+        arm.setPulleyPositionBackward();
     }
 
-    public void specimenHook(){
-        lift.setLiftHook();
-
-        hand.setWristMiddle();
-        hand.setHandClose();
-    }
-    public boolean dropOffFinished(){
-        boolean a = false;
-        if (Math.abs(lift.getPosition() - Lift.lift_dropoff) < 15){
-            a = true;
-        }
-        return a;
-    }
-
-    public void basePosition(){
-        lift.setLiftPickUp();
-
-        hand.setWristMiddle();
-    }
-
-    public void closeHand(){
-        hand.setHandClose();
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public void liftlift(){
-        lift.setliftlift();
-
-
-    }
-    public void openHand(){
-        hand.setHandOpen();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    public void wristHookOn(){
-        hand.setWristHook();
-    }
-
-    public void update() {
+    public void update(){
         arm.update();
-        lift.update();
+        //lift.update();
     }
+
+
+
+
+
+
+
+
 }

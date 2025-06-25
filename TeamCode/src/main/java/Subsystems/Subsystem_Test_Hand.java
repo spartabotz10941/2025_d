@@ -6,24 +6,34 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.util.List;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 //this line identifies if this is an autonomous or teleop program
-@TeleOp(name = "Subsystem_Test_Lift")
+@TeleOp(name = "Subsystem_Test_Hand")
 //this line allows you to modify variables inside the dashboard
 @Config
-public class Subsystem_Test_LIft extends OpMode {
+public class    Subsystem_Test_Hand extends OpMode {
+    public static Hand hand;
+    public static double input_lr;
+    public static double input_ud;
+    public static double input_rollers;
+    // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    public static Lift lift ;
+    public static double i =0;
+    public static boolean position;
 
+    //this section allows us to access telemetry data from a browser
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
+    GamepadEx g1;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -31,35 +41,39 @@ public class Subsystem_Test_LIft extends OpMode {
     @Override
     public void init() {
 
-        lift = new Lift(hardwareMap);
+        hand = new Hand(hardwareMap);
+        hand.limelightStart(hand.limelightRed);
+        // Tell the driver that initialization is complete.
         dashboardTelemetry.addData("Status", "Initialized");
         dashboardTelemetry.update();
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit START
-     */
     @Override
     public void init_loop() {
     }
 
-    /*
-     * Code to run ONCE when the driver hits START
-     */
     @Override
     public void start() {
         runtime.reset();
+
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits START but before they hit STOP
-     */
     @Override
     public void loop() {
-        lift.manualLift(gamepad1.right_trigger - gamepad1.left_trigger);
+       hand.updateLimelightData();
+
+       if (position){
+           i = hand.turnToAngle();
+       }
 
 
-        dashboardTelemetry.update();
+       dashboardTelemetry.addData("angle", hand.angle);
+       dashboardTelemetry.addData("tx", hand.tx);
+       dashboardTelemetry.addData("ty", hand.ty);
+       dashboardTelemetry.addData("temperature", hand.temperature);
+       dashboardTelemetry.addData("servo",  i);
+
+       dashboardTelemetry.update();
     }
 
     /*
@@ -67,7 +81,7 @@ public class Subsystem_Test_LIft extends OpMode {
      */
     @Override
     public void stop() {
-
+        hand.stopLimelight();
         dashboardTelemetry.update();
     }
 }

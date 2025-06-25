@@ -40,11 +40,9 @@ public class Limelight {
     public void updateLimelightData() {
         result = limelight.getLatestResult();
         if (result != null & result.isValid()) {
-            colorTargets = result.getColorResults();
-            for (LLResultTypes.ColorResult colorTarget : colorTargets) {
-                tx = colorTarget.getTargetXDegrees(); // Where it is (left-right)
-                ty = colorTarget.getTargetYDegrees(); // Where it is (up-down)
-                corners = colorTarget.getTargetCorners(); // size (0-100)
+            double[] pythonOutputs = result.getPythonOutput();
+            if (pythonOutputs != null && pythonOutputs.length > 0) {
+                double firstOutput = pythonOutputs[0];
 
             }
         }

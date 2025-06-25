@@ -43,7 +43,7 @@ public class TeleOp_2025 extends OpMode{
         train = new DriveTrainV2(hardwareMap);
         lift = new Lift(hardwareMap);
         arm = new ArmV2 (hardwareMap);
-        hand = new Hand(hardwareMap);
+
         supersystems = new Supersystems(hardwareMap);
 
     }
@@ -55,33 +55,22 @@ public class TeleOp_2025 extends OpMode{
 
     @Override
     public void loop(){
-        if (gamepad2.left_stick_button) reset_is_done = !reset_is_done;
-        if (!reset_is_done){
-            //arm.shoulderReset();
-            //lift.liftReset();
+        if (gamepad1.a){
+            supersystems.armForward();
+        }else if (gamepad1.b){
+            supersystems.armBackwards();
+        }else if (gamepad1.x){
+            supersystems.armStarting();
         }
-        //Remi
-        hand.moveHand(gamepad2.x, gamepad2.b);
-        //if (gamepad2.y){lift.lift_state = 0;}
-        //if (gamepad2.a){lift.lift_state = 1;}
-        //lift.liftControlSwitch();
-        lift.liftMove((gamepad2.right_trigger-gamepad2.left_trigger));
-        dashboardTelemetry.addData("triggers", gamepad2.right_trigger-gamepad2.left_trigger);
 
-
-        //Linus
-        if (gamepad1.right_trigger > 0){
-            finemovementbool = true;
-        } else if (gamepad1.right_trigger == 0) {
-            finemovementbool = false;
-        }
-        train.finecontrols(finemovementbool);
+        lift.manualLift(gamepad1.right_trigger - gamepad1.left_trigger);
         train.DriveCentric(gamepad1.left_stick_x * train.fine_move, gamepad1.left_stick_y * train.fine_move, gamepad1.right_stick_x);
-        lift.hook_bar(gamepad1.right_bumper, gamepad1.left_bumper);
         train.reset_odo(gamepad1.share);
 
 
 
+
+        supersystems.update();
         dashboardTelemetry.update();
 
     }

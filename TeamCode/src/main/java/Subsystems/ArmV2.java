@@ -15,13 +15,12 @@ public class ArmV2 {
     DcMotorEx gearmotor;
     PIDController pulleypid;
     PIDController gearpid;
-    public static double pulleykP = 0.0;
+    public static double pulleykP = 0.0185;
     public static double pulleykI = 0;
     public static double pulleykD = 0;
-    public static double gearkP = 0.0;
+    public static double gearkP = 0.0185;
     public static double gearkI = 0;
     public static double gearkD = 0;
-    public static int posDown = -823;
     public static int geartargetPosition;
     public static double gearoutput;
     public static double gearPosition;
@@ -31,6 +30,8 @@ public class ArmV2 {
 
     public static int pulleyForwardPosition = 0;
     public static int pulleyBackPosition  = -1940;
+    public static int gearForwardPosition = 1230;
+    public static int gearBackPosition = 0;
 
     public ArmV2(@NonNull HardwareMap hwMap){
         pulleymotor = hwMap.get(DcMotorEx.class,"pulleymotor");
@@ -61,15 +62,13 @@ public class ArmV2 {
 
         gearPosition = gearmotor.getCurrentPosition();
 
-        pulleymotor.setPower(gearoutput);
+        gearmotor.setPower(gearoutput);
     }
 
     public int getGearPosition(){
         return gearmotor.getCurrentPosition();
     }
-    public double getGearPower(){
-        return gearmotor.getPower();
-    }
+    public double getGearPower(){return gearmotor.getPower();}
 
 
     public void update(){
@@ -79,7 +78,20 @@ public class ArmV2 {
         pulleyPosition = pulleymotor.getCurrentPosition();
     }
 
-    public void pulleymanualMove(double input){
-        pulleymotor.setPower(input);
+    public void pulleymanualMove(double input1){
+        pulleymotor.setPower(input1);
     }
+    public void gearSetLimelightTarget (int input){
+        geartargetPosition = gearmotor.getCurrentPosition() +input;
+    }
+    public void gearmanualMove(double input2){
+        gearmotor.setPower(input2);
+
+    }
+
+    public void setPulleyPositionBackward(){pulleytargetPosition = pulleyBackPosition;}
+    public void setPulleyPositionForward(){pulleytargetPosition = pulleyForwardPosition;}
+
+    public void setGearPositionForward(){geartargetPosition = gearForwardPosition;}
+    public void setGearPositionBackward(){geartargetPosition = gearBackPosition;}
 }

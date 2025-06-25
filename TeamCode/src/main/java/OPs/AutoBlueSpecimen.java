@@ -123,12 +123,10 @@ import pedroPathing.constants.LConstants;
                     break;
 
                 case 1:
-                    supersystems.wristHookOn();
                     setPathState(2);
                 case 2:
                     if(!follower.isBusy()) {
                         follower.followPath(line2, true);
-                        supersystems.basePosition();
                         setPathState(3);
                     }
                     break;
@@ -162,7 +160,6 @@ import pedroPathing.constants.LConstants;
          * It runs all the setup actions, including building paths and starting the path system **/
         @Override
         public void start() {
-            supersystems.specimenHook();
             setPathState(0);
             clipTimer.reset();
         }

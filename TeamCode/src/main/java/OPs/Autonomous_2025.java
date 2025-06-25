@@ -37,24 +37,22 @@ public class Autonomous_2025 extends OpMode {
 
     @Override
     public void loop(){
-        centeringSwitch();
 
 
 
     }
-
+    /*
     private void switchStatement(){
         switch (caseselector){
             case 0:
-                supersystems.sampleDropoff();
+                supersystems.();
                 try {
                     Thread.sleep(4000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                if(supersystems.dropOffFinished()){caseselector = 1;}
+                if(){caseselector = 1;}
             case 1:
-                supersystems.openHand();
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -62,7 +60,6 @@ public class Autonomous_2025 extends OpMode {
                 }
                 caseselector = 2;
             case 2:
-                supersystems.basePosition();
 
         }
     }
@@ -81,5 +78,5 @@ public class Autonomous_2025 extends OpMode {
                 //supersystems.samplePickUp();
         }
     }
-
+    */
 }
