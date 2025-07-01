@@ -21,7 +21,7 @@ public class TeleOp_2025 extends OpMode{
     public static Lift lift ;
     public static ArmV2 arm ;
     public static Hand hand ;
-    public static Supersystems supersystems;
+    public static Supersystems supers;
 
     public double g1LeftStickY = 0.0;
     public double g1LeftStickX = 0.0;
@@ -29,7 +29,7 @@ public class TeleOp_2025 extends OpMode{
     public double g1RightStickY = 0.0;
     public double g1RightStickX = 0.0;
     private boolean reset_is_done = false;
-    public boolean finemovementbool;
+    public boolean finemovementbool = false;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -40,11 +40,9 @@ public class TeleOp_2025 extends OpMode{
 
     @Override
     public void init(){
-        train = new DriveTrainV2(hardwareMap);
-        lift = new Lift(hardwareMap);
-        arm = new ArmV2 (hardwareMap);
 
-        supersystems = new Supersystems(hardwareMap);
+
+        supers = new Supersystems(hardwareMap);
 
     }
 
@@ -55,22 +53,36 @@ public class TeleOp_2025 extends OpMode{
 
     @Override
     public void loop(){
-        if (gamepad1.a){
-            supersystems.armForward();
-        }else if (gamepad1.b){
-            supersystems.armBackwards();
-        }else if (gamepad1.x){
-            supersystems.armStarting();
+        if (gamepad1.a){//intake position
+            supers.prepickup();
+        }else if (gamepad1.b) { //output high basket
+            supers.pickup();
+        }else if (gamepad1.x) {
+            supers.release();
+
+        }else if (gamepad1.y){
+            supers.dropoff();
+
+        }else if (gamepad2.x){
+            supers.release();
+
         }
 
-        lift.manualLift(gamepad1.right_trigger - gamepad1.left_trigger);
-        train.DriveCentric(gamepad1.left_stick_x * train.fine_move, gamepad1.left_stick_y * train.fine_move, gamepad1.right_stick_x);
-        train.reset_odo(gamepad1.share);
+        if (gamepad1.right_trigger > 0){
+            finemovementbool = true;
+        } else if (gamepad1.right_trigger == 0) {
+            finemovementbool = false;
+        }
+        supers.drive.finecontrols(finemovementbool);
+
+
+        supers.drive.DriveCentric(gamepad1.left_stick_x * supers.drive.fine_move, gamepad1.left_stick_y * supers.drive.fine_move, gamepad1.right_stick_x);
+        supers.drive.reset_odo(gamepad1.share);
 
 
 
 
-        supersystems.update();
+        supers.update();
         dashboardTelemetry.update();
 
     }

@@ -19,12 +19,13 @@ public class Supersystems_opmode extends Supersystems{
     }
 
     public void intake_sequence() {
+        hand.limelightSwitch(hand.limelightRed);
         switch ( state){
             case 0:
 
-                armForward();
+                //armForward();
                 //lift.setLiftPickUp();
-                hand.limelightStart(hand.limelightRed);
+                hand.limelightStart();
                 if (hand.result.isValid()){
                     try {
                         Thread.sleep(3000);

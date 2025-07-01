@@ -48,6 +48,10 @@ public class DriveTrainV2 {
     public static double str_kD = 0.0;
     public static double str_pow = 0;
 
+    public static double submersibleYaw = - (Math.PI / 2);
+    public static double rungsYaw = 0.0;
+    public static double basketYaw = Math.toRadians(135);
+
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -104,7 +108,7 @@ public class DriveTrainV2 {
         double y = lStickY; // Remember, this is reversed!
         double x = lStickX; // this is strafing
         double rx = rStickX;
-
+        update_run_rotational();
         rot = Rotational_PID();
 
         // Denominator is the largest motor power (absolute value) or 1
@@ -212,9 +216,18 @@ public class DriveTrainV2 {
         rightBack.setPower(power);
         rightFront.setPower(power);
     }
-
+    public double getYaw(){
+        pinpoint.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+        return pinpoint.getHeading();
+    }
     public void train_set_heading_basket(){
-        rot_target = 10;
+        rot_target = basketYaw;
+    }
+    public void train_set_heading_submersible(){
+        rot_target = submersibleYaw;
+    }
+    public void train_set_heading_rungs(){
+        rot_target = rungsYaw;
     }
 
 

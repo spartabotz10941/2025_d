@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.List;
@@ -21,6 +22,8 @@ import java.util.List;
 public class Subsystem_Test_LIft extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     public static Lift lift ;
+    public static double input = 0;
+    public static boolean controller = false;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -56,9 +59,15 @@ public class Subsystem_Test_LIft extends OpMode {
      */
     @Override
     public void loop() {
-        lift.manualLift(gamepad1.right_trigger - gamepad1.left_trigger);
+        if (controller){
+            lift.liftsettarget((int) input);
+            lift.update();
+        }else {
 
+            lift.manualLift(input);
+        }
 
+        dashboardTelemetry.addData("lift position", lift.getPosition());
         dashboardTelemetry.update();
     }
 

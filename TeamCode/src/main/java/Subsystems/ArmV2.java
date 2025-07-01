@@ -21,16 +21,16 @@ public class ArmV2 {
     public static double gearkP = 0.0185;
     public static double gearkI = 0;
     public static double gearkD = 0;
-    public static int geartargetPosition;
+    public static int geartargetPosition = 0;
     public static double gearoutput;
     public static double gearPosition;
-    public static int pulleytargetPosition;
+    public static int pulleytargetPosition = 0;
     public static double pulleyoutput;
     public static double pulleyPosition;
 
     public static int pulleyForwardPosition = 0;
-    public static int pulleyBackPosition  = -1940;
-    public static int gearForwardPosition = 1230;
+    public static int pulleyBackPosition  = -1920;
+    public static int gearForwardPosition = 1220;
     public static int gearBackPosition = 0;
 
     public ArmV2(@NonNull HardwareMap hwMap){
@@ -46,6 +46,9 @@ public class ArmV2 {
         gearmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         gearmotor.setDirection(DcMotorSimple.Direction.REVERSE);
         gearpid = new PIDController(gearkP, gearkI, gearkD);
+
+        geartargetPosition = 0;
+        pulleytargetPosition = 0;
     }
     public void pulleyupdate(){
         pulleypid.setPID(pulleykP, pulleykI, pulleykD);
@@ -54,6 +57,10 @@ public class ArmV2 {
         pulleyPosition = pulleymotor.getCurrentPosition();
 
         pulleymotor.setPower(pulleyoutput);
+    }
+
+    public int getPulleyPosition(){
+        return pulleymotor.getCurrentPosition();
     }
 
     public void gearupdate(){
@@ -87,6 +94,11 @@ public class ArmV2 {
     public void gearmanualMove(double input2){
         gearmotor.setPower(input2);
 
+    }
+
+    public boolean isAtState(){
+        if(pulleypid.atSetPoint() && gearpid.atSetPoint()){return true;
+        }else {return false;}
     }
 
     public void setPulleyPositionBackward(){pulleytargetPosition = pulleyBackPosition;}

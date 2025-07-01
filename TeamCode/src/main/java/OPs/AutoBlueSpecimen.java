@@ -40,7 +40,6 @@ import pedroPathing.constants.LConstants;
     public class AutoBlueSpecimen extends OpMode {
 
         Supersystems supersystems;
-        Lift lift ;
 
         //this section allows us to access telemetry data from a browser
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -60,10 +59,19 @@ import pedroPathing.constants.LConstants;
          * (For Into the Deep, this would be Blue Observation Zone (0,0) to Red Observation Zone (144,144).)
          */
 
+        private final Pose startpose = new Pose(8,80,Math.toRadians(0));
+        private final Pose clippose = new Pose(39,80,Math.toRadians(0));
+        private final Pose pickup1pose = new Pose(30,120,Math.toRadians(0));
+        private final Pose pickup2pose = new Pose(30,130,Math.toRadians(0));
+        private final Pose pickup3pose = new Pose(30,130,Math.toRadians(30));
+        private final Pose parkpose = new Pose(63,98,Math.toRadians(-90));
+        private final Pose parkcontrolpose = new Pose(61.92,98,Math.toRadians(90));
+        private final Pose scorepose = new Pose(61.92,98,Math.toRadians(90));
+
 
 
         /* These are our Paths and PathChains that we will define in buildPaths() */
-        private PathChain line1, line2;
+        private PathChain clipline, pickup1line,score1line, pickup2line,score2line, pickup3line, score3line, parkline;
 
         /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
          * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -85,26 +93,89 @@ import pedroPathing.constants.LConstants;
              * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
             /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-            line1 = follower.pathBuilder()
+            clipline = follower.pathBuilder()
                     .addPath(
                             // Line 1
                             new BezierLine(
-                                    new Point(8.500, 81.000, Point.CARTESIAN),
-                                    new Point(30.000, 81.000, Point.CARTESIAN)
+                                    new Point(startpose),
+                                    new Point(clippose)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(startpose.getHeading(), clippose.getHeading())
                     .build();
 
-            line2 = follower.pathBuilder()
+            pickup1line = follower.pathBuilder()
                     .addPath(
 
                             new BezierLine(
-                                    new Point(30.000, 81.000, Point.CARTESIAN),
-                                    new Point(24.00, 81.000, Point.CARTESIAN)
+                                    new Point(clippose),
+                                    new Point(pickup1pose)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(clippose.getHeading(), pickup1pose.getHeading())
+                    .build();
+
+
+            score1line = follower.pathBuilder()
+                    .addPath(
+
+                            new BezierLine(
+                                    new Point(pickup1pose),
+                                    new Point(scorepose)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(pickup1pose.getHeading(), scorepose.getHeading())
+                    .build();
+            pickup2line = follower.pathBuilder()
+                    .addPath(
+
+                            new BezierLine(
+                                    new Point(scorepose),
+                                    new Point(pickup2pose)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(scorepose.getHeading(), pickup2pose.getHeading())
+                    .build();
+            score2line = follower.pathBuilder()
+                    .addPath(
+
+                            new BezierLine(
+                                    new Point(pickup2pose),
+                                    new Point(scorepose)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(pickup2pose.getHeading(), scorepose.getHeading())
+                    .build();
+            pickup3line= follower.pathBuilder()
+                    .addPath(
+
+                            new BezierLine(
+                                    new Point(scorepose),
+                                    new Point(pickup3pose)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(scorepose.getHeading(), pickup3pose.getHeading())
+                    .build();
+            score3line = follower.pathBuilder()
+                    .addPath(
+
+                            new BezierLine(
+                                    new Point(pickup3pose),
+                                    new Point(scorepose)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(pickup3pose.getHeading(), scorepose.getHeading())
+                    .build();
+            parkline = follower.pathBuilder()
+                    .addPath(
+
+                            new BezierCurve(
+                                    new Point(scorepose),
+                                    new Point(parkcontrolpose),
+                                    new Point (parkpose)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(scorepose.getHeading(), parkpose.getHeading())
                     .build();
 
             /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -118,16 +189,90 @@ import pedroPathing.constants.LConstants;
         public void autonomousPathUpdate() {
             switch (pathState) {
                 case 0:
-                    follower.followPath(line1, true);
+                    follower.followPath(clipline, true);
                     setPathState(1);
+                    // clip preset
+
                     break;
 
                 case 1:
-                    setPathState(2);
-                case 2:
                     if(!follower.isBusy()) {
-                        follower.followPath(line2, true);
-                        setPathState(3);
+                        follower.followPath(pickup1line, true);
+
+                        //pickup preset
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    //pick up
+                    setPathState(3);
+
+                    break;
+                case 3:
+                    if(!follower.isBusy()) {
+                        follower.followPath(score1line, true);
+                        // drop off
+                        setPathState(4);
+                    }
+                    break;
+                case 4:
+                    // dropoff
+                    setPathState(5);
+
+                    break;
+                case 5:
+                    if(!follower.isBusy()) {
+                        // pickup
+                        follower.followPath(pickup2line, true);
+                        setPathState(6);
+                    }
+                    break;
+                case 6:
+                    //pick up
+                    setPathState(7);
+
+                    break;
+                case 7:
+                    if(!follower.isBusy()) {
+                        follower.followPath(score2line, true);
+                        // drop off
+                        setPathState(8);
+                    }
+                    break;
+                case 8:
+                    //drop off
+                    setPathState(9);
+
+                    break;
+                case 9:
+                    if(!follower.isBusy()) {
+                        follower.followPath(pickup3line, true);
+                        // pcik up
+                        setPathState(10);
+                    }
+                    break;
+                case 10:
+                    //pick up
+                    setPathState(11);
+
+                    break;
+                case 11:
+                    if(!follower.isBusy()) {
+                        follower.followPath(score3line, true);
+                        //drop off
+                        setPathState(12);
+                    }
+                    break;
+                case 12:
+                    //drop off
+                    setPathState(13);
+
+                    break;
+                case 13:
+                    if(!follower.isBusy()) {
+                        follower.followPath(parkline, true);
+                        //touch structure
+
                     }
                     break;
 

@@ -26,16 +26,16 @@ public class Lift {
     public static double lift_kP = 0.01;
     public static double lift_kI = 0.0;
     public static double lift_kD = 0.0;
-    public static double lift_kH = 0.00;
+    public static double lift_kH = 0.001;
 
     public int lift_state = 1;
 
-    public static int lift_dropoff = 3735;
-    public static int lift_pickup = 300;
-    public static int lift_hook = 650;
+    public static int lift_dropoff = 4705;
+    public static int lift_pickup = 800;
+    public static int lift_hook = 3400;
     public static int lift_ground = 10;
 
-    private int target;
+    private int target = 0;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -99,6 +99,11 @@ public class Lift {
         liftMotorL.setPower(output);
         liftMotorR.setPower(output);
     }
+    public boolean isAtState(){
+        if(lift_controller.atSetPoint()){return true;
+        }else {return false;}
+    }
+
     public double getPosition(){
         return liftMotorL.getCurrentPosition();
     }
@@ -115,4 +120,5 @@ public class Lift {
     public void setliftGround(){
         target = lift_ground;
     }
+    public void liftsettarget(int input){ target = input;}
 }

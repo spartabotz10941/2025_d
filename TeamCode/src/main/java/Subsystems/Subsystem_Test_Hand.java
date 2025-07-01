@@ -22,13 +22,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Config
 public class    Subsystem_Test_Hand extends OpMode {
     public static Hand hand;
-    public static double input_lr;
-    public static double input_ud;
-    public static double input_rollers;
+    public static double angle;
+
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    public static double i =0;
-    public static boolean position;
+    public static double rollers =0;
+    public static double udservoinput = 0.5;
+    public static double lrservoinput=0.5;
+        public static boolean position = true;
 
     //this section allows us to access telemetry data from a browser
     FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -42,7 +43,7 @@ public class    Subsystem_Test_Hand extends OpMode {
     public void init() {
 
         hand = new Hand(hardwareMap);
-        hand.limelightStart(hand.limelightRed);
+        hand.limelightSwitch(hand.limelightRed);
         // Tell the driver that initialization is complete.
         dashboardTelemetry.addData("Status", "Initialized");
         dashboardTelemetry.update();
@@ -60,18 +61,30 @@ public class    Subsystem_Test_Hand extends OpMode {
 
     @Override
     public void loop() {
-       hand.updateLimelightData();
+
+        /*
+        hand.updateLimelightData();
 
        if (position){
            i = hand.turnToAngle();
-       }
+       }*/
+        hand.updateLimelightData();
+        hand.rollers(rollers);
+        hand.moveudservo(udservoinput);
+        if (gamepad1.a && position){
+            angle =hand.turnToAngle();
+            position = false;
+        }
+        if (gamepad1.b){position = true;}
+        if (gamepad1.x){hand.stopLimelight();}
 
 
-       dashboardTelemetry.addData("angle", hand.angle);
+        dashboardTelemetry.addData("angle", hand.angle);
        dashboardTelemetry.addData("tx", hand.tx);
        dashboardTelemetry.addData("ty", hand.ty);
        dashboardTelemetry.addData("temperature", hand.temperature);
-       dashboardTelemetry.addData("servo",  i);
+       dashboardTelemetry.addData("angle", angle);
+
 
        dashboardTelemetry.update();
     }
@@ -81,7 +94,6 @@ public class    Subsystem_Test_Hand extends OpMode {
      */
     @Override
     public void stop() {
-        hand.stopLimelight();
         dashboardTelemetry.update();
     }
 }

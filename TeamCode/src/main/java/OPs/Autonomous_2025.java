@@ -13,10 +13,10 @@ import Subsystems.Supersystems;
 @Autonomous(name = "Autonomous 2025")
 @Config
 public class Autonomous_2025 extends OpMode {
-    ArmV2 arm ;
-    Lift lift ;
+
+
     Supersystems supersystems ;
-    DriveTrainV2 train;
+
 
     private int caseselector = 0;
     private int centeringselector = 0;
@@ -24,8 +24,7 @@ public class Autonomous_2025 extends OpMode {
     @Override
     public void init(){
         supersystems = new Supersystems(hardwareMap);
-        arm = new ArmV2(hardwareMap);
-        train = new DriveTrainV2(hardwareMap);
+
 
     }
 

@@ -83,15 +83,8 @@ public class    Subsystem_Test extends OpMode {
      */
     @Override
     public void loop() {
-        drive.DriveCentric(gamepad1.left_stick_x , gamepad1.left_stick_y , gamepad1.right_stick_x);
 
-
-
-        dashboardTelemetry.addData("Status", "Run Time: " + runtime.toString());
-        dashboardTelemetry.addData("PID", DriveTrainV2.rot);
-        dashboardTelemetry.addData("target", DriveTrainV2.rot_target);
-        //dashboardTelemetry.addData("current", drive.normalize());
-
+        dashboardTelemetry.addData("heading", drive.getYaw());
         dashboardTelemetry.update();
     }
 

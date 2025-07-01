@@ -40,9 +40,9 @@ public class    Subsystem_Test_ArmV2 extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.a){supersystems.armBackwards();}
-        if(gamepad1.b){supersystems.armForward();}
-        if(gamepad1.back){supersystems.armStarting();}
+        //if (gamepad1.a){supersystems.armBackwards();}
+        //if(gamepad1.b){supersystems.armForward();}
+        //if(gamepad1.back){supersystems.armStarting();}
         supersystems.update();
 
 

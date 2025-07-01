@@ -62,9 +62,19 @@ public class Hand {
 
 
     }
-    public void limelightStart(int input){
+    public void limelightSwitch(int input){
         limelight.pipelineSwitch(input);
-        limelight.setPollRateHz(100);
+        limelight.setPollRateHz(2);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        limelight.start();
+
+
+    }
+    public void limelightStart(){
         limelight.start();
     }
 
@@ -118,6 +128,7 @@ public class Hand {
     public double turnToAngle(){
         double a = angle +90;
         if (a > 180){a = a % 180;}
+
         a = a/180;
         lrservo.setPosition(a);
         return a;
